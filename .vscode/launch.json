@@ -1,0 +1,13 @@
+{
+    "configurations": [
+        {
+            "name": "SWA: Run cs2webapp",
+            "request": "launch",
+            "type": "msedge",
+            "url": "http://localhost:4280",
+            "preLaunchTask": "swa: start cs2webapp",
+            "webRoot": "${workspaceFolder}/",
+            "timeout": 30000
+        }
+    ]
+}
