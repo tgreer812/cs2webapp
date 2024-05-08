@@ -15,6 +15,7 @@ const App = () => {
     event.preventDefault();
     alert('Spinning up server');
     // Call the Azure function here
+    setServers(servers);
   };
 
   return (
