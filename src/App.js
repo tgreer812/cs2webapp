@@ -3,15 +3,7 @@ import ServerCreator from './ServerCreator';
 import ServerDisplay from './ServerDisplay';
 
 const App = () => {
-  const [servers, setServers] = useState([
-    {
-      mapName: 'Dust II',
-      connectionString: 'connect domain:port',
-      status: 'running',
-      timestamp: Date.now()
-    },
-    // Add more hardcoded servers here
-  ]);
+  const [servers, setServers] = useState([]);
 
   return (
     <div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './ServerCreator.css';
-import {Tooltip} from 'react-tooltip';
+import { Tooltip } from 'react-tooltip';
 import { FaQuestionCircle } from 'react-icons/fa';
 
 const ServerCreator = ({ setServers, servers }) => {
@@ -38,6 +38,7 @@ const ServerCreator = ({ setServers, servers }) => {
   const azureEndpoint = "https://tg-cs2-server-create-afn.azurewebsites.net/api/CreateCS2Server"
 
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,8 +53,8 @@ const ServerCreator = ({ setServers, servers }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    alert('Spinning up server');
-  
+    setNotification('Spinning up server...');
+
     const response = await fetch(azureEndpoint, {
       method: 'POST',
       headers: {
@@ -61,22 +62,31 @@ const ServerCreator = ({ setServers, servers }) => {
       },
       body: JSON.stringify(formData),
     });
-  
+
     if (response.ok) {
       const result = await response.json();
+      const newConnectionString = formData.CS2_PW 
+        ? `connect ${result.IP}:${result.Ports.GamePort}; password ${formData.CS2_PW}` 
+        : `connect ${result.IP}:${result.Ports.GamePort}`;
+
       setServers([...servers, {
         mapName: formData.CS2_STARTMAP,
-        connectionString: 'connect domain:port',
+        connectionString: newConnectionString,
         status: 'running',
         timestamp: Date.now()
       }]);
+      setNotification('Server created successfully');
     } else {
-      alert('Failed to create server');
+      setNotification('Failed to create server');
     }
   };
 
   const toggleAdvanced = () => {
     setShowAdvanced(!showAdvanced);
+  };
+
+  const closeNotification = () => {
+    setNotification(null);
   };
 
   return (
@@ -285,7 +295,7 @@ const ServerCreator = ({ setServers, servers }) => {
               <select name="CS2_LOG_ITEMS" value={formData.CS2_LOG_ITEMS} onChange={handleChange}>
                 <option value="0">Off</option>
                 <option value="1">On</option>
-              </select>
+            </select>
               <FaQuestionCircle data-tip="Turns item logging on/off (0 - off, 1 - on)." />
             </label>
           </div>
@@ -293,6 +303,14 @@ const ServerCreator = ({ setServers, servers }) => {
 
         <input type="submit" value="Submit" />
       </form>
+
+      {notification && (
+        <div className="notification">
+          {notification}
+          <button onClick={closeNotification}>x</button>
+        </div>
+      )}
+
       <Tooltip place="right" type="dark" effect="solid" />
     </div>
   );
