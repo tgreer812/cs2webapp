@@ -1,54 +1,78 @@
 import React, { useState } from 'react';
 import './ServerCreator.css';
+import {Tooltip} from 'react-tooltip';
+import { FaQuestionCircle } from 'react-icons/fa';
 
 const ServerCreator = ({ setServers, servers }) => {
   const [formData, setFormData] = useState({
-    map: 'de_dust2',
-    srcdsToken: '',
-    cheats: '0',
-    port: '27015',
-    rconPort: '27050',
-    maxPlayers: '10',
-    steamAppValidate: '0',
-    serverHibernate: '1',
-    lan: '0',
-    rconPassword: 'changeme',
-    serverPassword: '',
-    gameType: '0',
-    gameMode: '1',
-    mapGroup: 'mg_active',
-    botDifficulty: '',
-    botQuota: '',
-    botQuotaMode: '',
-    tvAutoRecord: '0',
-    tvEnable: '0',
-    tvPort: '27020',
-    tvPassword: 'changeme',
-    tvRelayPassword: 'changeme',
-    tvMaxRate: '0',
-    tvDelay: '0',
-    log: 'on',
-    logMoney: '0',
-    logDetail: '0',
-    logItems: '0'
+    CS2_STARTMAP: 'de_dust2',
+    SRCDS_TOKEN: '',
+    CS2_CHEATS: '0',
+    CS2_PORT: '27015',
+    CS2_RCON_PORT: '27050',
+    CS2_MAXPLAYERS: '10',
+    STEAMAPPVALIDATE: '0',
+    CS2_SERVER_HIBERNATE: '1',
+    CS2_LAN: '0',
+    CS2_RCONPW: 'changeme',
+    CS2_PW: '',
+    CS2_GAMETYPE: '0',
+    CS2_GAMEMODE: '1',
+    CS2_MAPGROUP: 'mg_active',
+    CS2_BOT_DIFFICULTY: '0',
+    CS2_BOT_QUOTA: '',
+    CS2_BOT_QUOTA_MODE: '',
+    TV_AUTORECORD: '0',
+    TV_ENABLE: '0',
+    TV_PORT: '27020',
+    TV_PW: 'changeme',
+    TV_RELAY_PW: 'changeme',
+    TV_MAXRATE: '0',
+    TV_DELAY: '0',
+    CS2_LOG: 'on',
+    CS2_LOG_MONEY: '0',
+    CS2_LOG_DETAIL: '0',
+    CS2_LOG_ITEMS: '0'
   });
+
+  const azureEndpoint = "https://tg-cs2-server-create-afn.azurewebsites.net/api/CreateCS2Server"
 
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === 'gameTypeMode') {
+      const [gameType, gameMode] = value.split(',');
+      setFormData({ ...formData, CS2_GAMETYPE: gameType, CS2_GAMEMODE: gameMode });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     alert('Spinning up server');
-    // Call the Azure function here
-    setServers([...servers, {
-      mapName: formData.map,
-      connectionString: 'connect domain:port',
-      status: 'running',
-      timestamp: Date.now()
-    }]);
+  
+    const response = await fetch(azureEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+  
+    if (response.ok) {
+      const result = await response.json();
+      setServers([...servers, {
+        mapName: formData.CS2_STARTMAP,
+        connectionString: 'connect domain:port',
+        status: 'running',
+        timestamp: Date.now()
+      }]);
+    } else {
+      alert('Failed to create server');
+    }
   };
 
   const toggleAdvanced = () => {
@@ -64,7 +88,7 @@ const ServerCreator = ({ setServers, servers }) => {
           <h3>Required Settings</h3>
           <label>
             Pick a map:
-            <select name="map" value={formData.map} onChange={handleChange}>
+            <select name="CS2_STARTMAP" value={formData.CS2_STARTMAP} onChange={handleChange}>
               <option value="de_dust2">Dust II</option>
               <option value="de_inferno">Inferno</option>
               <option value="de_mirage">Mirage</option>
@@ -74,44 +98,36 @@ const ServerCreator = ({ setServers, servers }) => {
               <option value="de_vertigo">Vertigo</option>
               <option value="cs_office">Office</option>
             </select>
+            <FaQuestionCircle data-tip="Select the map for the server." />
           </label>
 
           <label>
             Server Password:
-            <input type="text" name="serverPassword" value={formData.serverPassword} onChange={handleChange} />
-            <span className="tooltip">
-              ?
-              <span className="tooltiptext">Password for the server</span>
-            </span>
+            <input type="text" name="CS2_PW" value={formData.CS2_PW} onChange={handleChange} />
+            <FaQuestionCircle data-tip="Password for the server." />
           </label>
 
           <label>
             Max Players:
-            <input type="text" name="maxPlayers" value={formData.maxPlayers} onChange={handleChange} />
-            <span className="tooltip">
-              ?
-              <span className="tooltiptext">Maximum number of players</span>
-            </span>
+            <input type="text" name="CS2_MAXPLAYERS" value={formData.CS2_MAXPLAYERS} onChange={handleChange} />
+            <FaQuestionCircle data-tip="Maximum number of players allowed on the server." />
           </label>
 
           <label>
             Game Type:
-            <select name="gameType" value={formData.gameType} onChange={handleChange}>
-              <option value="0" data-mode="0">Casual</option>
-              <option value="0" data-mode="1">Competitive</option>
-              <option value="0" data-mode="2">Wingman</option>
-              <option value="1" data-mode="2">Deathmatch</option>
-              <option value="3" data-mode="0">Custom</option>
+            <select name="CS2_GAMETYPE" value={formData.CS2_GAMETYPE} onChange={handleChange}>
+              <option value="0,1">Competitive</option>
+              <option value="0,2">Wingman</option>
+              <option value="0,0">Casual</option>
+              <option value="1,2">Deathmatch</option>
+              <option value="3,0">Custom</option>
             </select>
-            <span className="tooltip">
-              ?
-              <span className="tooltiptext">Type of game mode</span>
-            </span>
+            <FaQuestionCircle data-tip="Type of game mode." />
           </label>
         </div>
 
-        <button type="button" onClick={toggleAdvanced} className="show-advanced-button">
-            {showAdvanced ? 'Hide Advanced Settings' : 'Show Advanced Settings'}
+        <button type="button" onClick={toggleAdvanced}>
+          {showAdvanced ? 'Hide Advanced Settings' : 'Show Advanced Settings'}
         </button>
 
         {showAdvanced && (
@@ -120,224 +136,164 @@ const ServerCreator = ({ setServers, servers }) => {
 
             <label>
               SRCDS Token:
-              <input type="text" name="srcdsToken" value={formData.srcdsToken} onChange={handleChange} />
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Game Server Token from Steam</span>
-              </span>
+              <input type="text" name="SRCDS_TOKEN" value={formData.SRCDS_TOKEN} onChange={handleChange} />
+              <FaQuestionCircle data-tip="Game Server Token from https://steamcommunity.com/dev/managegameservers" />
             </label>
 
             <label>
               Steam App Validate:
-              <select name="steamAppValidate" value={formData.steamAppValidate} onChange={handleChange}>
+              <select name="STEAMAPPVALIDATE" value={formData.STEAMAPPVALIDATE} onChange={handleChange}>
                 <option value="0">No Validation</option>
                 <option value="1">Enable Validation</option>
               </select>
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Enable or disable Steam app validation</span>
-              </span>
+              <FaQuestionCircle data-tip="Whether to enable app validation (0 - no validation, 1 - enable validation)." />
             </label>
 
             <label>
               Cheats:
-              <select name="cheats" value={formData.cheats} onChange={handleChange}>
+              <select name="CS2_CHEATS" value={formData.CS2_CHEATS} onChange={handleChange}>
                 <option value="0">Disable</option>
                 <option value="1">Enable</option>
               </select>
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Enable or disable cheats</span>
-              </span>
+              <FaQuestionCircle data-tip="Enable or disable cheats (0 - disable, 1 - enable)." />
             </label>
 
             <label>
               Server Hibernate:
-              <select name="serverHibernate" value={formData.serverHibernate} onChange={handleChange}>
+              <select name="CS2_SERVER_HIBERNATE" value={formData.CS2_SERVER_HIBERNATE} onChange={handleChange}>
                 <option value="0">Disabled</option>
                 <option value="1">Enabled</option>
               </select>
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Enable or disable server hibernation</span>
-              </span>
+              <FaQuestionCircle data-tip="Put server in a low CPU state when there are no players (0 - hibernation disabled, 1 - hibernation enabled)." />
             </label>
 
             <label>
               LAN Mode:
-              <select name="lan" value={formData.lan} onChange={handleChange}>
+              <select name="CS2_LAN" value={formData.CS2_LAN} onChange={handleChange}>
                 <option value="0">Disabled</option>
                 <option value="1">Enabled</option>
               </select>
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Enable or disable LAN mode</span>
-              </span>
+              <FaQuestionCircle data-tip="Enable or disable LAN mode (0 - disabled, 1 - enabled)." />
             </label>
 
             <label>
               RCON Password:
-              <input type="text" name="rconPassword" value={formData.rconPassword} onChange={handleChange} />
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">RCON password for the server</span>
-              </span>
-            </label>
-
-            <label>
-              Map Group:
-              <input type="text" name="mapGroup" value={formData.mapGroup} onChange={handleChange} />
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Map pool</span>
-              </span>
+              <input type="text" name="CS2_RCONPW" value={formData.CS2_RCONPW} onChange={handleChange} />
+              <FaQuestionCircle data-tip="Password for remote console access." />
             </label>
 
             <label>
               Bot Difficulty:
-              <input type="text" name="botDifficulty" value={formData.botDifficulty} onChange={handleChange} />
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Difficulty of bots</span>
-              </span>
+              <select name="CS2_BOT_DIFFICULTY" value={formData.CS2_BOT_DIFFICULTY} onChange={handleChange}>
+                <option value="0">Easy</option>
+                <option value="1">Normal</option>
+                <option value="2">Hard</option>
+                <option value="3">Expert</option>
+              </select>
+              <FaQuestionCircle data-tip="Difficulty level of the bots (0 - easy, 1 - normal, 2 - hard, 3 - expert)." />
             </label>
 
             <label>
               Bot Quota:
-              <input type="text" name="botQuota" value={formData.botQuota} onChange={handleChange} />
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Number of bots</span>
-              </span>
+              <input type="text" name="CS2_BOT_QUOTA" value={formData.CS2_BOT_QUOTA} onChange={handleChange} />
+              <FaQuestionCircle data-tip="Number of bots to add." />
             </label>
 
             <label>
               Bot Quota Mode:
-              <input type="text" name="botQuotaMode" value={formData.botQuotaMode} onChange={handleChange} />
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Mode for bot quota</span>
-              </span>
+              <select name="CS2_BOT_QUOTA_MODE" value={formData.CS2_BOT_QUOTA_MODE} onChange={handleChange}>
+                <option value="fill">Fill</option>
+                <option value="competitive">Competitive</option>
+              </select>
+              <FaQuestionCircle data-tip="Determines how bots are filled in the server. 'Fill' will fill up the server with bots to reach the max player count. 'Competitive' follows competitive rules and fills up to the max player count." />
             </label>
 
             <label>
               TV Auto Record:
-              <select name="tvAutoRecord" value={formData.tvAutoRecord} onChange={handleChange}>
+              <select name="TV_AUTORECORD" value={formData.TV_AUTORECORD} onChange={handleChange}>
                 <option value="0">Off</option>
                 <option value="1">On</option>
               </select>
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Automatically record all games as CSTV demos</span>
-              </span>
+              <FaQuestionCircle data-tip="Automatically records all games as CSTV demos (0 - off, 1 - on)." />
             </label>
 
             <label>
               TV Enable:
-              <select name="tvEnable" value={formData.tvEnable} onChange={handleChange}>
+              <select name="TV_ENABLE" value={formData.TV_ENABLE} onChange={handleChange}>
                 <option value="0">Off</option>
                 <option value="1">On</option>
               </select>
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Enable or disable CSTV</span>
-              </span>
+              <FaQuestionCircle data-tip="Activates CSTV on server (0 - off, 1 - on)." />
             </label>
 
             <label>
               TV Port:
-              <input type="text" name="tvPort" value={formData.tvPort} onChange={handleChange} />
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Host SourceTV port</span>
-              </span>
+              <input type="text" name="TV_PORT" value={formData.TV_PORT} onChange={handleChange} />
+              <FaQuestionCircle data-tip="Host SourceTV port." />
             </label>
 
             <label>
               TV Password:
-              <input type="text" name="tvPassword" value={formData.tvPassword} onChange={handleChange} />
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">CSTV password for clients</span>
-              </span>
+              <input type="text" name="TV_PW" value={formData.TV_PW} onChange={handleChange} />
+              <FaQuestionCircle data-tip="CSTV password for clients." />
             </label>
 
             <label>
               TV Relay Password:
-              <input type="text" name="tvRelayPassword" value={formData.tvRelayPassword} onChange={handleChange} />
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">CSTV password for relay proxies</span>
-              </span>
+              <input type="text" name="TV_RELAY_PW" value={formData.TV_RELAY_PW} onChange={handleChange} />
+              <FaQuestionCircle data-tip="CSTV password for relay proxies." />
             </label>
 
             <label>
               TV Max Rate:
-              <input type="text" name="tvMaxRate" value={formData.tvMaxRate} onChange={handleChange} />
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Maximum CSTV spectator bandwidth rate allowed</span>
-              </span>
+              <input type="text" name="TV_MAXRATE" value={formData.TV_MAXRATE} onChange={handleChange} />
+              <FaQuestionCircle data-tip="World snapshots to broadcast per second. Affects camera tickrate." />
             </label>
 
             <label>
               TV Delay:
-              <input type="text" name="tvDelay" value={formData.tvDelay} onChange={handleChange} />
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">CSTV broadcast delay in seconds</span>
-              </span>
+              <input type="text" name="TV_DELAY" value={formData.TV_DELAY} onChange={handleChange} />
+              <FaQuestionCircle data-tip="CSTV broadcast delay in seconds." />
             </label>
 
             <label>
               Log:
-              <select name="log" value={formData.log} onChange={handleChange}>
+              <select name="CS2_LOG" value={formData.CS2_LOG} onChange={handleChange}>
                 <option value="on">On</option>
                 <option value="off">Off</option>
               </select>
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Enable or disable logging</span>
-              </span>
+              <FaQuestionCircle data-tip="Enable or disable logging ('on'/'off')." />
             </label>
 
             <label>
               Log Money:
-              <select name="logMoney" value={formData.logMoney} onChange={handleChange}>
+              <select name="CS2_LOG_MONEY" value={formData.CS2_LOG_MONEY} onChange={handleChange}>
                 <option value="0">Off</option>
                 <option value="1">On</option>
               </select>
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Enable or disable money logging</span>
-              </span>
+              <FaQuestionCircle data-tip="Turns money logging on/off (0 - off, 1 - on)." />
             </label>
 
             <label>
               Log Detail:
-              <input type="text" name="logDetail" value={formData.logDetail} onChange={handleChange} />
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Combat damage logging</span>
-              </span>
+              <input type="text" name="CS2_LOG_DETAIL" value={formData.CS2_LOG_DETAIL} onChange={handleChange} />
+              <FaQuestionCircle data-tip="Combat damage logging (0 - disabled, 1 - enemy, 2 - friendly, 3 - all)." />
             </label>
 
             <label>
               Log Items:
-              <select name="logItems" value={formData.logItems} onChange={handleChange}>
+              <select name="CS2_LOG_ITEMS" value={formData.CS2_LOG_ITEMS} onChange={handleChange}>
                 <option value="0">Off</option>
                 <option value="1">On</option>
               </select>
-              <span className="tooltip">
-                ?
-                <span className="tooltiptext">Enable or disable item logging</span>
-              </span>
+              <FaQuestionCircle data-tip="Turns item logging on/off (0 - off, 1 - on)." />
             </label>
           </div>
         )}
 
         <input type="submit" value="Submit" />
       </form>
+      <Tooltip place="right" type="dark" effect="solid" />
     </div>
   );
 };
