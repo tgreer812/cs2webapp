@@ -20,8 +20,8 @@ const ServerCreator = ({ setServers, servers }) => {
     CS2_GAMEMODE: '1',
     CS2_MAPGROUP: 'mg_active',
     CS2_BOT_DIFFICULTY: '0',
-    CS2_BOT_QUOTA: '',
-    CS2_BOT_QUOTA_MODE: '',
+    CS2_BOT_QUOTA: '0',
+    CS2_BOT_QUOTA_MODE: 'fill',
     TV_AUTORECORD: '0',
     TV_ENABLE: '0',
     TV_PORT: '27020',
@@ -35,15 +35,14 @@ const ServerCreator = ({ setServers, servers }) => {
     CS2_LOG_ITEMS: '0'
   });
 
-  const azureEndpoint = "https://tg-cs2-server-create-afn.azurewebsites.net/api/CreateCS2Server"
+  const azureEndpoint = "https://tg-cs2-server-create-afn.azurewebsites.net/api/CreateCS2Server";
 
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [notification, setNotification] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    if (name === 'gameTypeMode') {
+    if (name === 'CS2_GAMETYPE') {
       const [gameType, gameMode] = value.split(',');
       setFormData({ ...formData, CS2_GAMETYPE: gameType, CS2_GAMEMODE: gameMode });
     } else {
