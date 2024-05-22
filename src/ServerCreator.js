@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './ServerCreator.css';
 import { Tooltip } from 'react-tooltip';
-import { FaQuestionCircle } from 'react-icons/fa';
+import { FaQuestionCircle, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const ServerCreator = ({ setServers, servers }) => {
   const [formData, setFormData] = useState({
@@ -136,9 +136,10 @@ const ServerCreator = ({ setServers, servers }) => {
           </label>
         </div>
 
-        <button type="button" onClick={toggleAdvanced}>
+        <div className="toggle-advanced" onClick={toggleAdvanced}>
           {showAdvanced ? 'Hide Advanced Settings' : 'Show Advanced Settings'}
-        </button>
+          {showAdvanced ? <FaEyeSlash /> : <FaEye />}
+        </div>
 
         {showAdvanced && (
           <div className="form-section">
@@ -295,13 +296,13 @@ const ServerCreator = ({ setServers, servers }) => {
               <select name="CS2_LOG_ITEMS" value={formData.CS2_LOG_ITEMS} onChange={handleChange}>
                 <option value="0">Off</option>
                 <option value="1">On</option>
-            </select>
+              </select>
               <FaQuestionCircle data-tip="Turns item logging on/off (0 - off, 1 - on)." />
             </label>
           </div>
         )}
 
-        <input type="submit" value="Submit" />
+        <input className="submit-button" type="submit" value="Submit" />
       </form>
 
       {notification && (
