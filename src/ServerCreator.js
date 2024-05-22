@@ -105,6 +105,8 @@ const ServerCreator = ({ setServers, servers }) => {
               <option value="de_overpass">Overpass</option>
               <option value="de_vertigo">Vertigo</option>
               <option value="cs_office">Office</option>
+              <option value="de_anubis">Anubis</option>
+              <option value="de_ancient">Ancient</option>
             </select>
             <FaQuestionCircle data-tip="Select the map for the server." />
           </label>
