@@ -102,7 +102,6 @@ const ServerCreator = ({ setServers, servers }) => {
               <option value="de_inferno">Inferno</option>
               <option value="de_mirage">Mirage</option>
               <option value="de_nuke">Nuke</option>
-              <option value="de_train">Train</option>
               <option value="de_overpass">Overpass</option>
               <option value="de_vertigo">Vertigo</option>
               <option value="cs_office">Office</option>
