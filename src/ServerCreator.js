@@ -125,7 +125,7 @@ const ServerCreator = ({ setServers, servers }) => {
 
           <label>
             Game Type:
-            <select name="CS2_GAMETYPE" value={formData.CS2_GAMETYPE} onChange={handleChange}>
+            <select name="CS2_GAMETYPE" value={formData.CS2_GAMETYPE + "," + formData.CS2_GAMEMODE} onChange={handleChange}>
               <option value="0,1">Competitive</option>
               <option value="0,2">Wingman</option>
               <option value="0,0">Casual</option>
